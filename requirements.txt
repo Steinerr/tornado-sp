@@ -1,0 +1,31 @@
+# Core
+psycopg2==2.6.2
+aiopg==0.12.0
+peewee==2.9.1
+peewee-async==0.5.7
+tornado==4.4.2
+jsonschema==2.5.1
+msgpack-python==0.4.8
+manage.py==0.2.10
+requests==2.11.1
+pycurl==7.43.0
+tcrudge==0.9.11
+# filegen
+git+https://github.com/seriyps/ru_number_to_text@2.0.0#egg=num2t4ru
+
+python-magic==0.4.12
+raven==5.32.0
+uvloop==0.8.0
+zeep==2.4.0
+
+# Migrations
+django==1.10.2
+django-environ==0.4.0
+
+# Development & Testing
+py==1.4.31
+pytest==3.0.2
+pytest-cov==2.3.1
+pytest-tornado==0.4.5
+pytest-env==0.6.0
+coverage==4.2

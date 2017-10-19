@@ -1,9 +1,20 @@
-import tornado.ioloop
-import tornado.web
-from tornado.httpclient import AsyncHTTPClient
+import asyncio
 import uuid
+import tornado
+from tornado import web
 from tornado.escape import url_escape
+from tornado.httpclient import AsyncHTTPClient
+from tornado.options import parse_command_line, options
 from tornado.web import RequestHandler
+
+import settings
+
+
+# Configure Tornado to use asyncio
+tornado.ioloop.IOLoop.configure('tornado.platform.asyncio.AsyncIOMainLoop')
+
+# Configure Tornado to use CurlHttpClient
+AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
 
 
 class ProxyFile(RequestHandler):
@@ -35,10 +46,44 @@ class ProxyFile(RequestHandler):
         self.finish()
 
 
-application = tornado.web.Application([
+app_handlers = (
     (r"/", ProxyFile),
-])
+)
+
+#
+# class CustomSentryMixin(SentryMixin):
+#     pass
+
+
+class CustomApplication(web.Application):
+    """
+    Implement reusable http client.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(CustomApplication, self).__init__(*args, **kwargs)
+        # Http client
+        self._http_client = None
+
+    @property
+    def http_client(self):
+        if not self._http_client:
+            self._http_client = AsyncHTTPClient()
+        return self._http_client
+
+
+application = CustomApplication(app_handlers, debug=True)
+
 
 if __name__ == "__main__":
-    application.listen(8888)
-    tornado.ioloop.IOLoop.instance().start()
+    if settings.DEBUG:
+        # Set default logging level to debug
+        options.logging = 'debug'
+    # Parse tornado command line and set log formatting
+    parse_command_line()
+    application.listen(settings.PORT, settings.HOST)
+
+    # tornado.ioloop.IOLoop.instance().start()
+
+    loop = asyncio.get_event_loop()
+    loop.run_forever()
