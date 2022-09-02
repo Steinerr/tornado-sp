@@ -7,7 +7,13 @@ from tornado.httpclient import AsyncHTTPClient
 from tornado.options import parse_command_line, options
 from tornado.web import RequestHandler
 
-import settings
+class Settings:
+    HOST = 'localhost'
+    POSRT = 9000
+    DEBUG = True
+    
+    
+settings = Settings()
 
 
 # Configure Tornado to use asyncio
@@ -35,7 +41,6 @@ class ProxyFile(RequestHandler):
                 self.set_header('Content-Length', head.strip().split(':')[1])
                 self.flush()
 
-        # url = 'https://upload.wikimedia.org/wikipedia/commons/d/db/Patern_test.jpg'
         url = 'http://speedtest.ftp.otenet.gr/files/test100Mb.db'
         client = AsyncHTTPClient()
         await client.fetch(
@@ -49,10 +54,6 @@ class ProxyFile(RequestHandler):
 app_handlers = (
     (r"/", ProxyFile),
 )
-
-#
-# class CustomSentryMixin(SentryMixin):
-#     pass
 
 
 class CustomApplication(web.Application):
@@ -82,8 +83,5 @@ if __name__ == "__main__":
     # Parse tornado command line and set log formatting
     parse_command_line()
     application.listen(settings.PORT, settings.HOST)
-
-    # tornado.ioloop.IOLoop.instance().start()
-
     loop = asyncio.get_event_loop()
     loop.run_forever()
